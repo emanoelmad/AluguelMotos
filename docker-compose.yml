@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  aluguelmotos.api:
+    image: ${DOCKER_REGISTRY-}aluguelmotosapi
+    build:
+      context: .
+      dockerfile: AluguelMotos.Api/Dockerfile
