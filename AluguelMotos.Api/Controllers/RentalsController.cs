@@ -7,17 +7,17 @@ using Microsoft.EntityFrameworkCore;
 namespace AluguelMotos.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class RentalsController : ControllerBase
+    [Route("locacao")]
+    public class LocacaoController : ControllerBase
     {
         private readonly AluguelMotosDbContext _context;
-        public RentalsController(AluguelMotosDbContext context)
+    public LocacaoController(AluguelMotosDbContext context)
         {
             _context = context;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] RentalCreateRequest request)
+    [HttpPost]
+    public async Task<IActionResult> AlugarMoto([FromBody] RentalCreateRequest request)
         {
             var courier = await _context.Couriers.FindAsync(request.CourierId);
             if (courier == null) return NotFound(new { message = "Courier not found" });
@@ -40,18 +40,18 @@ namespace AluguelMotos.Api.Controllers
             };
             _context.Rentals.Add(rental);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = rental.Id }, rental);
+            return CreatedAtAction(nameof(ConsultarLocacaoPorId), new { id = rental.Id }, rental);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+    [HttpGet]
+    public async Task<IActionResult> ConsultarLocacoes()
         {
             var result = await _context.Rentals.ToListAsync();
             return Ok(result);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> ConsultarLocacaoPorId(Guid id)
         {
             var rental = await _context.Rentals.FindAsync(id);
             if (rental == null) return NotFound();
@@ -60,15 +60,15 @@ namespace AluguelMotos.Api.Controllers
 
         private decimal CalculateRentalCost(RentalPlan plan, int days)
         {
-            return plan switch
+            switch (plan)
             {
-                RentalPlan.SevenDays => 30m * days,
-                RentalPlan.FifteenDays => 28m * days,
-                RentalPlan.ThirtyDays => 22m * days,
-                RentalPlan.FortyFiveDays => 20m * days,
-                RentalPlan.FiftyDays => 18m * days,
-                _ => 0m
-            };
+                case RentalPlan.SevenDays: return 30m * days;
+                case RentalPlan.FifteenDays: return 28m * days;
+                case RentalPlan.ThirtyDays: return 22m * days;
+                case RentalPlan.FortyFiveDays: return 20m * days;
+                case RentalPlan.FiftyDays: return 18m * days;
+                default: return 0m;
+            }
         }
     }
 }

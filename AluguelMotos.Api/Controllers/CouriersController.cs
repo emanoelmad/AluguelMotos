@@ -7,17 +7,17 @@ using Microsoft.EntityFrameworkCore;
 namespace AluguelMotos.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class CouriersController : ControllerBase
+    [Route("entregadores")]
+    public class EntregadoresController : ControllerBase
     {
         private readonly AluguelMotosDbContext _context;
-        public CouriersController(AluguelMotosDbContext context)
+    public EntregadoresController(AluguelMotosDbContext context)
         {
             _context = context;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CourierCreateRequest request)
+    [HttpPost]
+    public async Task<IActionResult> CadastrarEntregador([FromBody] CourierCreateRequest request)
         {
             if (await _context.Couriers.AnyAsync(c => c.Cnpj == request.Cnpj))
                 return Conflict(new { message = "CNPJ already exists" });
@@ -37,18 +37,18 @@ namespace AluguelMotos.Api.Controllers
             };
             _context.Couriers.Add(courier);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = courier.Id }, courier);
+            return CreatedAtAction(nameof(ConsultarEntregadorPorId), new { id = courier.Id }, courier);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+    [HttpGet]
+    public async Task<IActionResult> ConsultarEntregadores()
         {
             var result = await _context.Couriers.ToListAsync();
             return Ok(result);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> ConsultarEntregadorPorId(Guid id)
         {
             var courier = await _context.Couriers.FindAsync(id);
             if (courier == null) return NotFound();

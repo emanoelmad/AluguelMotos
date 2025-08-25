@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 namespace AluguelMotos.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class RentalPlansController : ControllerBase
+    [Route("api/planos-locacao")]
+    public class PlanosLocacaoController : ControllerBase
     {
         private readonly IRentalPlanRepository _repository;
-        public RentalPlansController(IRentalPlanRepository repository)
+    public PlanosLocacaoController(IRentalPlanRepository repository)
         {
             _repository = repository;
         }

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AluguelMotos.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("entregadores/{id}/cnh")]
     public class CnhController : ControllerBase
     {
         private readonly AluguelMotosDbContext _context;
@@ -21,13 +21,13 @@ namespace AluguelMotos.Api.Controllers
             _env = env;
         }
 
-        [HttpPost("upload")]
-        public async Task<IActionResult> Upload([FromBody] CnhUploadRequest request)
+        [HttpPost]
+        public async Task<IActionResult> EnviarFotoCnh([FromRoute] string id, [FromBody] CnhUploadRequest request)
         {
             if (request.ContentType != "image/png" && request.ContentType != "image/bmp")
                 return BadRequest(new { message = "Invalid file type. Only PNG or BMP allowed." });
 
-            var courier = await _context.Couriers.FindAsync(Guid.Parse(request.CourierId));
+            var courier = await _context.Couriers.FindAsync(Guid.Parse(id));
             if (courier == null) return NotFound();
 
             var fileName = $"cnh_{courier.Id}_{DateTime.UtcNow.Ticks}{System.IO.Path.GetExtension(request.FileName)}";

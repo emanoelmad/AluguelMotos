@@ -7,17 +7,17 @@ using Microsoft.EntityFrameworkCore;
 namespace AluguelMotos.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class MotorcyclesController : ControllerBase
+    [Route("motos")]
+    public class MotosController : ControllerBase
     {
         private readonly AluguelMotosDbContext _context;
-        public MotorcyclesController(AluguelMotosDbContext context)
+    public MotosController(AluguelMotosDbContext context)
         {
             _context = context;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] MotorcycleCreateRequest request)
+    [HttpPost]
+    public async Task<IActionResult> CadastrarMoto([FromBody] MotorcycleCreateRequest request)
         {
             if (await _context.Motorcycles.AnyAsync(m => m.Plate == request.Plate))
                 return Conflict(new { message = "Plate already exists" });
@@ -33,11 +33,11 @@ namespace AluguelMotos.Api.Controllers
             await _context.SaveChangesAsync();
             // Simulação de evento de moto cadastrada
             // TODO: Integrar mensageria
-            return CreatedAtAction(nameof(GetById), new { id = moto.Id }, moto);
+        return CreatedAtAction(nameof(ConsultarMotoPorId), new { id = moto.Id }, moto);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? plate)
+    [HttpGet]
+    public async Task<IActionResult> ConsultarMotos([FromQuery] string? plate)
         {
             var query = _context.Motorcycles.AsQueryable();
             if (!string.IsNullOrEmpty(plate))
@@ -46,28 +46,28 @@ namespace AluguelMotos.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> ConsultarMotoPorId(Guid id)
         {
             var moto = await _context.Motorcycles.FindAsync(id);
             if (moto == null) return NotFound();
             return Ok(moto);
         }
 
-        [HttpPut("{id}/plate")]
-        public async Task<IActionResult> UpdatePlate(Guid id, [FromBody] string newPlate)
+    [HttpPut("{id}/placa")]
+    public async Task<IActionResult> ModificarPlaca(Guid id, [FromBody] string novaPlaca)
         {
             var moto = await _context.Motorcycles.FindAsync(id);
             if (moto == null) return NotFound();
-            if (await _context.Motorcycles.AnyAsync(m => m.Plate == newPlate))
+                if (await _context.Motorcycles.AnyAsync(m => m.Plate == novaPlaca))
                 return Conflict(new { message = "Plate already exists" });
-            moto.Plate = newPlate;
+                moto.Plate = novaPlaca;
             await _context.SaveChangesAsync();
             return Ok(moto);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> RemoverMoto(Guid id)
         {
             var moto = await _context.Motorcycles.FindAsync(id);
             if (moto == null) return NotFound();
