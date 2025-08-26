@@ -11,14 +11,17 @@ namespace AluguelMotos.Api.Controllers
     public class LocacaoController : ControllerBase
     {
         private readonly AluguelMotosDbContext _context;
-    public LocacaoController(AluguelMotosDbContext context)
+        private readonly ILogger<LocacaoController> _logger;
+        public LocacaoController(AluguelMotosDbContext context, ILogger<LocacaoController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
     [HttpPost]
-    public async Task<IActionResult> AlugarMoto([FromBody] RentalCreateRequest request)
+        public async Task<IActionResult> AlugarMoto([FromBody] RentalCreateRequest request)
         {
+            _logger.LogInformation("Tentando alugar moto {MotorcycleId} para entregador {CourierId}", request.MotorcycleId, request.CourierId);
             var courier = await _context.Couriers.FindAsync(request.CourierId);
             if (courier == null) return NotFound(new { message = "Courier not found" });
             if (courier.CnhType != "A" && courier.CnhType != "A+B")
@@ -44,15 +47,17 @@ namespace AluguelMotos.Api.Controllers
         }
 
     [HttpGet]
-    public async Task<IActionResult> ConsultarLocacoes()
+        public async Task<IActionResult> ConsultarLocacoes()
         {
+            _logger.LogInformation("Consultando locações.");
             var result = await _context.Rentals.ToListAsync();
             return Ok(result);
         }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> ConsultarLocacaoPorId(Guid id)
+        public async Task<IActionResult> ConsultarLocacaoPorId(Guid id)
         {
+            _logger.LogInformation("Consultando locação por id: {Id}", id);
             var rental = await _context.Rentals.FindAsync(id);
             if (rental == null) return NotFound();
             return Ok(rental);
