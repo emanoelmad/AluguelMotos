@@ -11,14 +11,17 @@ namespace AluguelMotos.Api.Controllers
     public class EntregadoresController : ControllerBase
     {
         private readonly AluguelMotosDbContext _context;
-    public EntregadoresController(AluguelMotosDbContext context)
+        private readonly ILogger<EntregadoresController> _logger;
+        public EntregadoresController(AluguelMotosDbContext context, ILogger<EntregadoresController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
     [HttpPost]
-    public async Task<IActionResult> CadastrarEntregador([FromBody] CourierCreateRequest request)
+        public async Task<IActionResult> CadastrarEntregador([FromBody] CourierCreateRequest request)
         {
+            _logger.LogInformation("Tentando cadastrar entregador: {Cnpj}", request.Cnpj);
             if (await _context.Couriers.AnyAsync(c => c.Cnpj == request.Cnpj))
                 return Conflict(new { message = "CNPJ already exists" });
             if (await _context.Couriers.AnyAsync(c => c.CnhNumber == request.CnhNumber))
@@ -41,15 +44,17 @@ namespace AluguelMotos.Api.Controllers
         }
 
     [HttpGet]
-    public async Task<IActionResult> ConsultarEntregadores()
+        public async Task<IActionResult> ConsultarEntregadores()
         {
+            _logger.LogInformation("Consultando entregadores.");
             var result = await _context.Couriers.ToListAsync();
             return Ok(result);
         }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> ConsultarEntregadorPorId(Guid id)
+        public async Task<IActionResult> ConsultarEntregadorPorId(Guid id)
         {
+            _logger.LogInformation("Consultando entregador por id: {Id}", id);
             var courier = await _context.Couriers.FindAsync(id);
             if (courier == null) return NotFound();
             return Ok(courier);
